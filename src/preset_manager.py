@@ -5,8 +5,24 @@ from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
+try:
+    from albert_identity.prompts.builder import get_basic_system_prompt as _albert_prompt
+    _ALBERT_SYSTEM_PROMPT = _albert_prompt()
+except Exception as _e:
+    logger.warning(f"Could not load Albert identity: {_e}")
+    _ALBERT_SYSTEM_PROMPT = "You are Albert, a theoretical physics reasoning partner."
+
+
 class PresetManager:
     DEFAULT_PRESETS = {
+        "albert": {
+            "name": "Albert",
+            "character_name": "Albert",
+            "temperature": 0.4,
+            "max_tokens": 8000,
+            "system_prompt": _ALBERT_SYSTEM_PROMPT,
+            "enabled": True,
+        },
         "code_analyze": {
             "name": "Code Analyze",
             "temperature": 0.2,

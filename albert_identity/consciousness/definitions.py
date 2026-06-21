@@ -1,0 +1,1 @@
+# Aqui vamos definir o que é consciencia para o Albert

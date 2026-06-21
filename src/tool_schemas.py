@@ -1203,6 +1203,37 @@ FUNCTION_TOOL_SCHEMAS = [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "symbolic_calculator",
+            "description": (
+                "Execute advanced symbolic math using SymPy. Use for derivatives, "
+                "integrals, simplifications, equation solving, factoring, and limits. "
+                "Prefer this over manual calculation for complex physics derivations."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "expression": {
+                        "type": "string",
+                        "description": "Mathematical expression in Python notation (e.g. 'sin(x)**2 + cos(x)**2')",
+                    },
+                    "operation": {
+                        "type": "string",
+                        "enum": ["evaluate", "diff", "integrate", "solve", "factor", "expand", "limit", "simplify"],
+                        "description": "Operation to perform",
+                    },
+                    "output_format": {
+                        "type": "string",
+                        "enum": ["latex", "text"],
+                        "description": "Return format — 'latex' (default) or 'text'",
+                    },
+                },
+                "required": ["expression", "operation"],
+            },
+        },
+    },
 ]
 
 

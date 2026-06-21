@@ -62,26 +62,34 @@ class ChatHandler:
         preset_system_prompt = None
         character_name = ""
 
-        if preset_id and preset_id in self.preset_manager.presets:
-            preset = self.preset_manager.presets[preset_id]
-            if preset.get("enabled") is False:
-                logger.info(f"Preset {preset_id} is disabled, using defaults")
-                return temperature, max_tokens, preset_system_prompt, character_name
-            if preset.get("system_prompt"):
-                preset_system_prompt = preset["system_prompt"]
-            character_name = preset.get("character_name", "")
-            if character_name:
-                name_line = f"Your name is {character_name}."
-                if preset_system_prompt:
-                    preset_system_prompt = f"{name_line} {preset_system_prompt}"
-                else:
-                    preset_system_prompt = name_line
-            if "temperature" in preset:
-                temperature = preset["temperature"]
-            if "max_tokens" in preset:
-                max_tokens = preset["max_tokens"]
+        # Resolve the active preset — fall back to "albert" when none is selected
+        # or the requested preset is disabled.
+        resolved_id = preset_id if preset_id and preset_id in self.preset_manager.presets else None
+        if resolved_id:
+            candidate = self.preset_manager.presets[resolved_id]
+            if candidate.get("enabled") is False:
+                logger.info(f"Preset {preset_id} is disabled, falling back to albert")
+                resolved_id = None
 
-        logger.info(f"Preset {preset_id}: temp={temperature}, max_tokens={max_tokens}")
+        if not resolved_id:
+            resolved_id = "albert"
+
+        preset = self.preset_manager.presets.get(resolved_id, {})
+        if preset.get("system_prompt"):
+            preset_system_prompt = preset["system_prompt"]
+        character_name = preset.get("character_name", "")
+        if character_name:
+            name_line = f"Your name is {character_name}."
+            if preset_system_prompt:
+                preset_system_prompt = f"{name_line} {preset_system_prompt}"
+            else:
+                preset_system_prompt = name_line
+        if "temperature" in preset:
+            temperature = preset["temperature"]
+        if "max_tokens" in preset:
+            max_tokens = preset["max_tokens"]
+
+        logger.info(f"Preset {preset_id!r} → resolved={resolved_id}: temp={temperature}, max_tokens={max_tokens}")
         return temperature, max_tokens, preset_system_prompt, character_name
 
     def enhance_message_if_needed(self, message: str) -> str:

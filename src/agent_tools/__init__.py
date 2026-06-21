@@ -25,6 +25,7 @@ from .document_tools import CreateDocumentTool, UpdateDocumentTool, EditDocument
 from .model_interaction_tools import ChatWithModelTool, AskTeacherTool, ListModelsTool
 from .bg_job_tools import ManageBgJobsTool
 from .session_tools import CreateSessionTool, ListSessionsTool, SendToSessionTool, ManageSessionTool
+from .physics_tools import SymbolicCalculatorTool
 
 TOOL_HANDLERS = {
     "bash": BashTool().execute,
@@ -51,6 +52,7 @@ TOOL_HANDLERS = {
     "list_sessions": ListSessionsTool().execute,
     "send_to_session": SendToSessionTool().execute,
     "manage_session": ManageSessionTool().execute,
+    "symbolic_calculator": SymbolicCalculatorTool().execute,
 }
 
 # ---------------------------------------------------------------------------
@@ -95,7 +97,8 @@ TOOL_TAGS = {"bash", "python", "web_search", "web_fetch", "read_file", "write_fi
              # Generic loopback to any UI-button endpoint (cookbook,
              # gallery, email folders, etc.) — agent uses this when
              # there's no named tool wrapper for the action.
-             "app_api"}
+             "app_api",
+             "symbolic_calculator"}
 
 ToolBlock = namedtuple("ToolBlock", ["tool_type", "content"])
 

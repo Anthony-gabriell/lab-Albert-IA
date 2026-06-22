@@ -1301,3 +1301,88 @@ if (!window._odyEscExpandGuard) {
     else { try { topModal.classList.add('hidden'); } catch {} }
   }, true);
 }
+
+// ==========================================================================
+// REMOÇÃO DEFINITIVA DO EMAIL (MÉTODO KILL ZONE)
+// ==========================================================================
+function removerEmailDefinitivo() {
+    // 1. Remove qualquer botão/link que tenha os atributos conhecidos do Email
+    const seletores = '[data-shortcut="email"], [data-modal-id="email-lib-modal"], #email-btn, #tool-email-btn';
+    document.querySelectorAll(seletores).forEach(el => {
+        el.style.setProperty('display', 'none', 'important');
+    });
+
+    // 2. Método "Kill Zone": Elimina o buraco roxo que sobrou entre Chats e Tools
+    const sidebar = document.querySelector('.sidebar-inner');
+    if (sidebar) {
+        let zonaDeExclusao = false;
+
+        Array.from(sidebar.children).forEach(filho => {
+            const texto = filho.textContent.trim();
+
+            // Se chegamos no botão "Tools", saímos da zona de exclusão
+            if (texto.includes('Tools')) {
+                zonaDeExclusao = false;
+            }
+
+            // Tudo que estiver dentro da zona de exclusão (o contêiner fantasma do +) é destruído
+            if (zonaDeExclusao) {
+                filho.style.setProperty('display', 'none', 'important');
+                filho.style.setProperty('height', '0', 'important');
+                filho.style.setProperty('margin', '0', 'important');
+                filho.style.setProperty('padding', '0', 'important');
+                filho.style.setProperty('border', 'none', 'important');
+            }
+
+            // Se achamos o botão "Chats", ativamos a zona de exclusão para os próximos elementos
+            if (texto.includes('Chats')) {
+                zonaDeExclusao = true;
+            }
+
+            // 3. Fallback Extra: Se o item ainda carregar a palavra "Email" na estrutura HTML, apaga ele todo
+            if (texto.includes('Email')) {
+                filho.style.setProperty('display', 'none', 'important');
+            }
+        });
+    }
+}
+
+// Executa imediatamente e blinda contra atualizações do React/JS nativo
+removerEmailDefinitivo();
+const emailObserver = new MutationObserver(removerEmailDefinitivo);
+emailObserver.observe(document.body, { childList: true, subtree: true });
+
+// Ocultar itens da barra lateral e painel de atalhos da interface visualmente
+function _hideSidebarAndShortcutItems() {
+  const selectorsToHide = [
+    '#tool-compare-btn',      // Botão Compare
+    '#tool-gallery-btn',      // Botão Gallery
+    '#tool-email-btn',        // Possível ID do botão Email
+    '#email-btn',             // ID alternativo do Email
+    '#tool-calendar-btn',     // Possível ID do botão Calendar
+    '#calendar-btn',          // ID alternativo do Calendar
+    // Seletores comuns para os mesmos itens dentro do painel de atalhos (shortcuts)
+    '[data-shortcut="email"]',
+    '[data-shortcut="calendar"]',
+    '[data-shortcut="compare"]',
+    '[data-shortcut="gallery"]'
+  ];
+
+  selectorsToHide.forEach(selector => {
+    document.querySelectorAll(selector).forEach(el => {
+      if (el) el.style.setProperty('display', 'none', 'important');
+    });
+  });
+}
+
+// Executa assim que o script carrega e também monitora mudanças se a UI renderizar dinamicamente
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _hideSidebarAndShortcutItems);
+} else {
+  _hideSidebarAndShortcutItems();
+}
+
+// Observer para garantir que se o painel de atalhos recarregar, eles continuem ocultos
+new MutationObserver(() => {
+  _hideSidebarAndShortcutItems();
+}).observe(document.body, { childList: true, subtree: true });
